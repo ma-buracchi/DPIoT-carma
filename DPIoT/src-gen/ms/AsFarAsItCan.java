@@ -493,8 +493,7 @@ public class AsFarAsItCan extends CarmaModel {
 					final Node __MY__loc = store.get( "loc" , Node.class );
 					final Node __ATTR__loc = store.get( "loc" , Node.class );
 					LinkedList<__RECORD__Message> __MY__buf = (LinkedList<__RECORD__Message>) store.get( "buf" );
-					Boolean __MY__leader = (Boolean) store.get( "leader" );
-					return ( ( ( computeSize( __MY__buf ) )>( 0 ) )&&( get(__MY__buf,0).__FIELD__NOTIFY ) )&&( !( __MY__leader ) );
+					return ( ( computeSize( __MY__buf ) )>( 0 ) )&&( get(__MY__buf,0).__FIELD__NOTIFY );
 				}
 					
 			};
@@ -558,6 +557,71 @@ public class AsFarAsItCan extends CarmaModel {
 			}
 		}
 		{
+			CarmaAction action = new CarmaInput( 
+				__ACT_NAME__send , __ACT__send , false  		
+			) {
+				
+				@Override
+				protected CarmaStoreUpdate getUpdate(CarmaSystem sys, final Object value, final double now) {
+					
+					LinkedList<Object> message = (LinkedList<Object>) value;
+					final int __VARIABLE__rId = (Integer) message.get(0);
+					final boolean __VARIABLE__notify = (Boolean) message.get(1);
+					return new CarmaStoreUpdate() {
+						
+						//@Override
+						public void update(RandomGenerator r, CarmaStore store) {
+							Node __MY__loc = store.get( "loc" , Node.class );
+							Node __ATTR__loc = store.get( "loc" , Node.class );
+							LinkedList<__RECORD__Message> __MY__buf = (LinkedList<__RECORD__Message>) store.get( "buf" );
+							__RECORD__Message __MY__received = (__RECORD__Message) store.get( "received" );
+							store.set( "received", __FUN__newMessage( 
+										Integer.valueOf( __VARIABLE__rId ),
+										__VARIABLE__notify
+									).clone() );
+							__MY__received = __FUN__newMessage( 
+										Integer.valueOf( __VARIABLE__rId ),
+										__VARIABLE__notify
+									).clone();
+							store.set( "buf", concatenate( __MY__buf , getList( __MY__received )  ) );
+							__MY__buf = concatenate( __MY__buf , getList( __MY__received )  );
+						}
+					};
+								
+				}	
+				
+				@Override
+				protected CarmaPredicate getPredicate(CarmaSystem sys, CarmaStore myStore, Object value) {
+							LinkedList<Object> message = (LinkedList<Object>) value;
+							final int __VARIABLE__rId = (Integer) message.get(0);
+							final boolean __VARIABLE__notify = (Boolean) message.get(1);
+							final Node __MY__loc = myStore.get( "loc" , Node.class );
+							Integer __MY__left = (Integer) myStore.get( "left" );
+							return new CarmaPredicate() {
+			
+								//@Override
+								public boolean satisfy(double now,CarmaStore store) {
+									try {
+										Node __ATTR__loc = store.get( "loc" , Node.class );
+										Integer __ATTR__position = (Integer) store.get( "position" );
+										return carmaEquals( __MY__left , __ATTR__position );
+									} catch (NullPointerException e) {
+										return false;
+									}
+								}
+								
+							};
+					
+				}
+							
+			};		
+			
+			_COMP_Agent.addTransition( 
+				__STATE___Agent_LEADER , 
+				action , 
+				__STATE___Agent_LEADER );			
+		}
+		{
 			CarmaAction action = new CarmaOutput(
 				__ACT_NAME__winner , __ACT__winner , true  		
 			) {
@@ -593,6 +657,71 @@ public class AsFarAsItCan extends CarmaModel {
 				__STATE___Agent_LEADER , 
 				action , 
 				__STATE___Agent_LEADER );			
+		}
+		{
+			CarmaAction action = new CarmaInput( 
+				__ACT_NAME__send , __ACT__send , false  		
+			) {
+				
+				@Override
+				protected CarmaStoreUpdate getUpdate(CarmaSystem sys, final Object value, final double now) {
+					
+					LinkedList<Object> message = (LinkedList<Object>) value;
+					final int __VARIABLE__rId = (Integer) message.get(0);
+					final boolean __VARIABLE__notify = (Boolean) message.get(1);
+					return new CarmaStoreUpdate() {
+						
+						//@Override
+						public void update(RandomGenerator r, CarmaStore store) {
+							Node __MY__loc = store.get( "loc" , Node.class );
+							Node __ATTR__loc = store.get( "loc" , Node.class );
+							LinkedList<__RECORD__Message> __MY__buf = (LinkedList<__RECORD__Message>) store.get( "buf" );
+							__RECORD__Message __MY__received = (__RECORD__Message) store.get( "received" );
+							store.set( "received", __FUN__newMessage( 
+										Integer.valueOf( __VARIABLE__rId ),
+										__VARIABLE__notify
+									).clone() );
+							__MY__received = __FUN__newMessage( 
+										Integer.valueOf( __VARIABLE__rId ),
+										__VARIABLE__notify
+									).clone();
+							store.set( "buf", concatenate( __MY__buf , getList( __MY__received )  ) );
+							__MY__buf = concatenate( __MY__buf , getList( __MY__received )  );
+						}
+					};
+								
+				}	
+				
+				@Override
+				protected CarmaPredicate getPredicate(CarmaSystem sys, CarmaStore myStore, Object value) {
+							LinkedList<Object> message = (LinkedList<Object>) value;
+							final int __VARIABLE__rId = (Integer) message.get(0);
+							final boolean __VARIABLE__notify = (Boolean) message.get(1);
+							final Node __MY__loc = myStore.get( "loc" , Node.class );
+							Integer __MY__left = (Integer) myStore.get( "left" );
+							return new CarmaPredicate() {
+			
+								//@Override
+								public boolean satisfy(double now,CarmaStore store) {
+									try {
+										Node __ATTR__loc = store.get( "loc" , Node.class );
+										Integer __ATTR__position = (Integer) store.get( "position" );
+										return carmaEquals( __MY__left , __ATTR__position );
+									} catch (NullPointerException e) {
+										return false;
+									}
+								}
+								
+							};
+					
+				}
+							
+			};		
+			
+			_COMP_Agent.addTransition( 
+				__STATE___Agent_FOLLOWER , 
+				action , 
+				__STATE___Agent_FOLLOWER );			
 		}
 		{
 			CarmaAction action = new CarmaOutput(

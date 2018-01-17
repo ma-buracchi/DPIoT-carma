@@ -61,14 +61,28 @@ component Agent(int position, int id){
 			
 			+
 			
-			[(size(my.buf) > 0) && my.buf[0].NOTIFY && !my.leader]send[my.right == position]<0, true>{
+			[(size(my.buf) > 0) && my.buf[0].NOTIFY]send[my.right == position]<0, true>{
 				my.buf = tail(my.buf);
 			}.FOLLOWER;			
 			
 		LEADER =
+			send[my.left == position](rId,notify){
+				my.received = newMessage(rId,notify);
+				my.buf = my.buf + [:my.received:];
+			}.LEADER
+			
+			+
+			
 			winner*{}.LEADER;
 			
 		FOLLOWER = 
+			send[my.left == position](rId,notify){
+				my.received = newMessage(rId,notify);
+				my.buf = my.buf + [:my.received:];
+			}.FOLLOWER
+			
+			+
+			
 			loser*{}.FOLLOWER;
 			
 	}
