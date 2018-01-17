@@ -25,18 +25,6 @@ component Agent(int position, int id){
 	
 	behaviour{
 		ASLEEP = 
-			send [my.right == position]<my.id,my.counter>{
-				my.minimum = my.id;
-			}.AWAKE
-			
-			+
-			
-			send [my.left == position](rId,rCounter){
-				my.received = newMessage(rId,rCounter);
-				my.buf = my.buf + [:my.received:];
-			}.INITIALIZE;
-						
-		INITIALIZE =
 			send[my.right == position]<my.id,my.counter>{
 				my.minimum = my.id;
 			}.AWAKE
@@ -46,7 +34,7 @@ component Agent(int position, int id){
 			send [my.left == position](rId,rCounter){
 				my.received = newMessage(rId,rCounter);
 				my.buf = my.buf + [:my.received:];
-			}.INITIALIZE;
+			}.FOLLOWER;
 			
 		AWAKE = 
 			send[my.left == position](rId,rCounter){
@@ -64,7 +52,7 @@ component Agent(int position, int id){
 			
 			+
 			
-			[(size(my.buf) > 0) && (my.buf[0].ID != my.id) && my.known]check*{
+			[(size(my.buf) > 0) && (my.buf[0].ID != my.id) && my.known]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
 				my.minimum = min(my.minimum, my.buf[0].ID);
 				my.counter = my.counter + 1;
 				my.buf = tail(my.buf);
@@ -79,18 +67,33 @@ component Agent(int position, int id){
 			}.CHECK;			
 			
 		CHECK =
-			[(my.counter == my.ringSize) && (my.id == my.minimum)]youWin*{
+			//[(my.counter == my.ringSize) && (my.id == my.minimum)]youWin*{
+			[my.id == my.minimum]youWin*{
 				my.leader = true;
 			}.LEADER
 			
 			+
 			
-			[(my.counter == my.ringSize) && (my.id != my.minimum)]youLose*{}.FOLLOWER;
+			//[(my.counter == my.ringSize) && (my.id != my.minimum)]youLose*{}.FOLLOWER;
+			[my.id != my.minimum]youLose*{}.FOLLOWER;
 			
 		LEADER =
 			winner*{}.LEADER;
 			
 		FOLLOWER = 
+			send[my.left == position](rId,rCounter){
+				my.received = newMessage(rId,rCounter);
+				my.buf = my.buf + [:my.received:];
+			}.FOLLOWER
+			
+			+
+			
+			[(size(my.buf) > 0)]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
+				my.buf = tail(my.buf);
+			}.FOLLOWER
+			
+			+
+			
 			loser*{}.FOLLOWER;
 			
 	}
@@ -118,6 +121,7 @@ system Ring {
 }
 
 measure asleep = #{Agent[ASLEEP] | true};
+measure awake = #{Agent[AWAKE] | true};
 measure leader = #{Agent[LEADER] | true};
 measure followers = #{Agent[FOLLOWER] | true};
 measure messages = global.messages;
