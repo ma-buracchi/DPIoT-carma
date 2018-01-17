@@ -12,12 +12,11 @@ component Agent(int position, int id){
 	store{
 		attrib int position = position;
 		attrib int id = id;
-		attrib int right := (position+1)%N;
+		attrib int right := (position+1)%N; 
 		attrib int left := (position+N-1)%N;
 		attrib int minimum = MAXINT;
 		attrib list<Message> buf = newList(Message);
 		attrib Message received := [ID := 0, NOTIFY := false];
-		attrib bool leader = false;
 	}
 	
 	behaviour{
@@ -27,7 +26,7 @@ component Agent(int position, int id){
 			}.AWAKE
 			
 			+
-			
+	
 			send[my.left == position](rId,notify){
 				my.received = newMessage(rId,notify);
 				my.buf = my.buf + [:my.received:];
@@ -56,7 +55,6 @@ component Agent(int position, int id){
 			
 			[(size(my.buf) > 0) && (my.buf[0].ID == my.minimum) && !my.buf[0].NOTIFY]send[my.right == position]<0, true>{
 				my.buf = tail(my.buf);
-				my.leader = true;
 			}.LEADER
 			
 			+

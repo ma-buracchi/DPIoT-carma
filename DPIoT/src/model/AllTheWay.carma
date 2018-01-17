@@ -20,7 +20,6 @@ component Agent(int position, int id){
 		attrib bool known = false;
 		attrib list<Message> buf = newList(Message);
 		attrib Message received = [ID = 0, COUNTER = 0];
-		attrib bool leader = false;
 	}
 	
 	behaviour{
@@ -79,9 +78,7 @@ component Agent(int position, int id){
 			}.CHECK;			
 			
 		CHECK =
-			[(my.counter == my.ringSize) && (my.id == my.minimum)]youWin*{
-				my.leader = true;
-			}.LEADER
+			[(my.counter == my.ringSize) && (my.id == my.minimum)]youWin*{}.LEADER
 			
 			+
 			
