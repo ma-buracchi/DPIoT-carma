@@ -67,15 +67,13 @@ component Agent(int position, int id){
 			}.CHECK;			
 			
 		CHECK =
-			//[(my.counter == my.ringSize) && (my.id == my.minimum)]youWin*{
-			[my.id == my.minimum]youWin*{
+			[(my.counter == my.ringSize) && (my.id == my.minimum)]youWin*{
 				my.leader = true;
 			}.LEADER
 			
 			+
 			
-			//[(my.counter == my.ringSize) && (my.id != my.minimum)]youLose*{}.FOLLOWER;
-			[my.id != my.minimum]youLose*{}.FOLLOWER;
+			[(my.counter == my.ringSize) && (my.id != my.minimum)]youLose*{}.FOLLOWER;
 			
 		LEADER =
 			winner*{}.LEADER;
@@ -88,7 +86,7 @@ component Agent(int position, int id){
 			
 			+
 			
-			[(size(my.buf) > 0)]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
+			[(size(my.buf) > 0)]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER>{
 				my.buf = tail(my.buf);
 			}.FOLLOWER
 			
