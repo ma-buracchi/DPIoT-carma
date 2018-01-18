@@ -92,7 +92,7 @@ component Agent(int position, int id){
 system Ring {	
 	collective {
 		for (i ; i < N ; 1) {
-			new Agent(N+1-i, 10*i);
+			new Agent(i, N+1-i);
 		}
 	}	
 	environment {
