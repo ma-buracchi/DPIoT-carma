@@ -16,7 +16,7 @@ component Agent(int position, int id){
 		attrib int ringSize = 1;
 		attrib int right = (position+1)%N;
 		attrib int left = (position+N-1)%N;
-		attrib int minimum = 10000;
+		attrib int minimum = MAXINT;
 		attrib bool known = false;
 		attrib list<Message> buf = newList(Message);
 		attrib Message received = [ID = 0, COUNTER = 0];
