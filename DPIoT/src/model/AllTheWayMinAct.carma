@@ -10,6 +10,10 @@ fun list<Message> addMessage(Message mess, list<Message> buf){
 	return buf;
 }
 
+fun bool isNotEmpty(list<Message> buf){
+	return size(buf)>0;
+}
+
 const N = 20;
 
 component Agent(int position, int id){
@@ -45,7 +49,7 @@ component Agent(int position, int id){
 			
 			+
 		
-			[(size(my.buf) > 0) && (my.buf[0].ID != my.id) && !my.known]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
+			[isNotEmpty(my.buf) && (my.buf[0].ID != my.id) && !my.known]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
 				my.minimum = min(my.minimum, my.buf[0].ID);
 				my.counter = my.counter + 1;
 				my.buf = tail(my.buf);
@@ -53,7 +57,7 @@ component Agent(int position, int id){
 			
 			+
 			
-			[(size(my.buf) > 0) && (my.buf[0].ID != my.id) && my.known]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
+			[isNotEmpty(my.buf) && (my.buf[0].ID != my.id) && my.known]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
 				my.minimum = min(my.minimum, my.buf[0].ID);
 				my.counter = my.counter + 1;
 				my.buf = tail(my.buf);
@@ -61,7 +65,7 @@ component Agent(int position, int id){
 			
 			+
 			
-			[(size(my.buf) > 0) && (my.buf[0].ID == my.id)]check*{
+			[isNotEmpty(my.buf) && (my.buf[0].ID == my.id)]check*{
 				my.ringSize = my.buf[0].COUNTER;
 				my.known = true;
 				my.buf = tail(my.buf);
@@ -84,7 +88,7 @@ component Agent(int position, int id){
 			
 			+
 			
-			[(size(my.buf) > 0)]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER>{
+			[isNotEmpty(my.buf)]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER>{
 				my.buf = tail(my.buf);
 			}.FOLLOWER
 			

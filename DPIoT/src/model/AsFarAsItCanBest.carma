@@ -10,6 +10,10 @@ fun list<Message> addMessage(Message mess, list<Message> buf){
 	return buf;
 }
 
+fun bool isNotEmpty(list<Message> buf){
+	return size(buf)>0;
+}
+
 const N = 10;
 
 component Agent(int position, int id){
@@ -42,26 +46,26 @@ component Agent(int position, int id){
 			
 			+
 			
-			[(size(my.buf) > 0) && (my.buf[0].ID > my.minimum) && !my.buf[0].NOTIFY]discard*{
+			[isNotEmpty(my.buf) && (my.buf[0].ID > my.minimum) && !my.buf[0].NOTIFY]discard*{
 				my.buf = tail(my.buf);
 			}.AWAKE
 			
 			+
 		
-			[(size(my.buf) > 0) && (my.buf[0].ID < my.minimum) && !my.buf[0].NOTIFY]send[my.right == position]<my.buf[0].ID, false>{
+			[isNotEmpty(my.buf) && (my.buf[0].ID < my.minimum) && !my.buf[0].NOTIFY]send[my.right == position]<my.buf[0].ID, false>{
 				my.minimum = my.buf[0].ID;
 				my.buf = tail(my.buf);
 			}.AWAKE
 			
 			+
 			
-			[(size(my.buf) > 0) && (my.buf[0].ID == my.minimum) && !my.buf[0].NOTIFY]send[my.right == position]<0, true>{
+			[isNotEmpty(my.buf) && (my.buf[0].ID == my.minimum) && !my.buf[0].NOTIFY]send[my.right == position]<0, true>{
 				my.buf = tail(my.buf);
 			}.LEADER
 			
 			+
 			
-			[(size(my.buf) > 0) && my.buf[0].NOTIFY]send[my.right == position]<0, true>{
+			[isNotEmpty(my.buf) && my.buf[0].NOTIFY]send[my.right == position]<0, true>{
 				my.buf = tail(my.buf);
 			}.FOLLOWER;			
 			
