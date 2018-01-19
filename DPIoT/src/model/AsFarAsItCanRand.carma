@@ -1,5 +1,8 @@
 record Message = [int ID, bool NOTIFY];
 
+const N = 10;
+const identifiers = createRandomList();
+
 fun Message newMessage(int id, bool notify){
 	Message mess := [ID := id, NOTIFY := notify];
 	return mess;
@@ -8,11 +11,6 @@ fun Message newMessage(int id, bool notify){
 fun list<Message> addMessage(Message mess, list<Message> buf){
 	buf = buf + [:mess:];
 	return buf;
-}
-
-fun list<int> addInt(int num, list<int> l){
-	l = l + [:num:];
-	return l;
 }
 
 fun bool isNotEmpty(list<Message> buf){
@@ -37,12 +35,10 @@ fun list<int> createRandomList(){
 	return l;
 }
 
-const N = 10;
-
 system Ring {	
 	collective {
 		for (i ; i < N ; 1) {
-			new Agent(i, i, createRandomList());
+			new Agent(i, identifiers[i]);
 		}
 	}	
 	environment {
@@ -57,7 +53,7 @@ system Ring {
 	}
 }
 
-component Agent(int position, int id, list<int> ban){
+component Agent(int position, int id){
 	
 	store{
 		attrib int position = position;
@@ -66,16 +62,9 @@ component Agent(int position, int id, list<int> ban){
 		attrib int left := (position+N-1)%N;
 		attrib int minimum = MAXINT;
 		attrib list<Message> buf = newList(Message);
-		attrib list<int> identifier = ban;
-		attrib bool idSet = false;
 	}
 	
 	behaviour{
-		SETUP =
-			idSetting*{
-				my.id = my.identifier[position];
-			}.SETUP;
-			
 		ASLEEP = 
 			send[my.right == position]<my.id, false>{
 				my.minimum = my.id;
@@ -137,7 +126,7 @@ component Agent(int position, int id, list<int> ban){
 			
 	}
 	init{
-		SETUP
+		ASLEEP
 	}
 } 
 
