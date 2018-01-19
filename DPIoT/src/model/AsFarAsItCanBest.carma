@@ -5,6 +5,11 @@ fun Message newMessage(int id, bool notify){
 	return mess;
 }
 
+fun list<Message> addMessage(Message mess, list<Message> buf){
+	buf = buf + [:mess:];
+	return buf;
+}
+
 const N = 10;
 
 component Agent(int position, int id){
@@ -16,7 +21,6 @@ component Agent(int position, int id){
 		attrib int left := (position+N-1)%N;
 		attrib int minimum = MAXINT;
 		attrib list<Message> buf = newList(Message);
-		attrib Message received := [ID := 0, NOTIFY := false];
 	}
 	
 	behaviour{
@@ -28,14 +32,12 @@ component Agent(int position, int id){
 			+
 	
 			send[my.left == position](rId,notify){
-				my.received = newMessage(rId,notify);
-				my.buf = my.buf + [:my.received:];
+				my.buf = addMessage(newMessage(rId,notify),my.buf);
 			}.ASLEEP;
 			
 		AWAKE = 
 			send[my.left == position](rId,notify){
-				my.received = newMessage(rId,notify);
-				my.buf = my.buf + [:my.received:];
+				my.buf = addMessage(newMessage(rId,notify),my.buf);
 			}.AWAKE
 			
 			+
@@ -65,8 +67,7 @@ component Agent(int position, int id){
 			
 		LEADER =
 			send[my.left == position](rId,notify){
-				my.received = newMessage(rId,notify);
-				my.buf = my.buf + [:my.received:];
+				my.buf = addMessage(newMessage(rId,notify),my.buf);
 			}.LEADER
 			
 			+
@@ -75,8 +76,7 @@ component Agent(int position, int id){
 			
 		FOLLOWER = 
 			send[my.left == position](rId,notify){
-				my.received = newMessage(rId,notify);
-				my.buf = my.buf + [:my.received:];
+				my.buf = addMessage(newMessage(rId,notify),my.buf);
 			}.FOLLOWER
 			
 			+
