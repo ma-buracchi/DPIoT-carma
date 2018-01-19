@@ -10,13 +10,54 @@ fun list<Message> addMessage(Message mess, list<Message> buf){
 	return buf;
 }
 
+fun list<int> addInt(int num, list<int> l){
+	l = l + [:num:];
+	return l;
+}
+
 fun bool isNotEmpty(list<Message> buf){
 	return size(buf)>0;
 }
 
+fun bool contain(list<int> l, int i){
+	return exist(l, @ == i);
+}
+
+fun list<int> createRandomList(){
+	list<int> l = newList(int);
+	for i from 0 to MAXINT{
+		int id = int(RND*100);
+		if (!contain(l, id)){
+			l = l + [:id:];
+		}
+		if (size(l) == N){
+			return l;
+		}
+	}
+	return l;
+}
+
 const N = 10;
 
-component Agent(int position, int id){
+system Ring {	
+	collective {
+		for (i ; i < N ; 1) {
+			new Agent(i, i, createRandomList());
+		}
+	}	
+	environment {
+		store {
+			attrib int messages = 0;
+			}
+		update {
+			send{
+				messages = global.messages+1;
+			}
+		}
+	}
+}
+
+component Agent(int position, int id, list<int> ban){
 	
 	store{
 		attrib int position = position;
@@ -25,9 +66,16 @@ component Agent(int position, int id){
 		attrib int left := (position+N-1)%N;
 		attrib int minimum = MAXINT;
 		attrib list<Message> buf = newList(Message);
+		attrib list<int> identifier = ban;
+		attrib bool idSet = false;
 	}
 	
 	behaviour{
+		SETUP =
+			idSetting*{
+				my.id = my.identifier[position];
+			}.SETUP;
+			
 		ASLEEP = 
 			send[my.right == position]<my.id, false>{
 				my.minimum = my.id;
@@ -89,27 +137,9 @@ component Agent(int position, int id){
 			
 	}
 	init{
-		ASLEEP
+		SETUP
 	}
 } 
-
-system Ring {	
-	collective {
-		for (i ; i < N ; 1) {
-			new Agent(i, int(RND*MAXINT)-1);
-		}
-	}	
-	environment {
-		store {
-			attrib int messages = 0;
-			}
-		update {
-			send{
-				messages = global.messages+1;
-			}
-		}
-	}
-}
 
 measure leader = #{Agent[LEADER] | true};
 measure followers = #{Agent[FOLLOWER] | true};
