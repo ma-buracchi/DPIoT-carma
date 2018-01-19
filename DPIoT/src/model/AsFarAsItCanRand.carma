@@ -1,0 +1,116 @@
+record Message = [int ID, bool NOTIFY];
+
+fun Message newMessage(int id, bool notify){
+	Message mess := [ID := id, NOTIFY := notify];
+	return mess;
+}
+
+fun list<Message> addMessage(Message mess, list<Message> buf){
+	buf = buf + [:mess:];
+	return buf;
+}
+
+fun bool isNotEmpty(list<Message> buf){
+	return size(buf)>0;
+}
+
+const N = 10;
+
+component Agent(int position, int id){
+	
+	store{
+		attrib int position = position;
+		attrib int id = id;
+		attrib int right := (position+1)%N; 
+		attrib int left := (position+N-1)%N;
+		attrib int minimum = MAXINT;
+		attrib list<Message> buf = newList(Message);
+	}
+	
+	behaviour{
+		ASLEEP = 
+			send[my.right == position]<my.id, false>{
+				my.minimum = my.id;
+			}.AWAKE
+			
+			+
+	
+			send[my.left == position](rId,notify){
+				my.buf = addMessage(newMessage(rId,notify),my.buf);
+			}.ASLEEP;
+			
+		AWAKE = 
+			send[my.left == position](rId,notify){
+				my.buf = addMessage(newMessage(rId,notify),my.buf);
+			}.AWAKE
+			
+			+
+			
+			[isNotEmpty(my.buf) && (my.buf[0].ID > my.minimum) && !my.buf[0].NOTIFY]discard*{
+				my.buf = tail(my.buf);
+			}.AWAKE
+			
+			+
+		
+			[isNotEmpty(my.buf) && (my.buf[0].ID < my.minimum) && !my.buf[0].NOTIFY]send[my.right == position]<my.buf[0].ID, false>{
+				my.minimum = my.buf[0].ID;
+				my.buf = tail(my.buf);
+			}.AWAKE
+			
+			+
+			
+			[isNotEmpty(my.buf) && (my.buf[0].ID == my.minimum) && !my.buf[0].NOTIFY]send[my.right == position]<0, true>{
+				my.buf = tail(my.buf);
+			}.LEADER
+			
+			+
+			
+			[isNotEmpty(my.buf) && my.buf[0].NOTIFY]send[my.right == position]<0, true>{
+				my.buf = tail(my.buf);
+			}.FOLLOWER;			
+			
+		LEADER =
+			send[my.left == position](rId,notify){
+				my.buf = addMessage(newMessage(rId,notify),my.buf);
+			}.LEADER
+			
+			+
+			
+			winner*{}.LEADER;
+			
+		FOLLOWER = 
+			send[my.left == position](rId,notify){
+				my.buf = addMessage(newMessage(rId,notify),my.buf);
+			}.FOLLOWER
+			
+			+
+			
+			loser*{}.FOLLOWER;
+			
+	}
+	init{
+		ASLEEP
+	}
+} 
+
+system Ring {	
+	collective {
+		for (i ; i < N ; 1) {
+			new Agent(i, int(RND*MAXINT)-1);
+		}
+	}	
+	environment {
+		store {
+			attrib int messages = 0;
+			}
+		update {
+			send{
+				messages = global.messages+1;
+			}
+		}
+	}
+}
+
+measure leader = #{Agent[LEADER] | true};
+measure followers = #{Agent[FOLLOWER] | true};
+measure messages = global.messages;
