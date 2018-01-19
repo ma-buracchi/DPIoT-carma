@@ -115,7 +115,6 @@ system Ring {
 	}
 }
 
-measure asleep = #{Agent[ASLEEP] | true};
 measure leader = #{Agent[LEADER] | true};
 measure followers = #{Agent[FOLLOWER] | true};
 measure messages = global.messages;
