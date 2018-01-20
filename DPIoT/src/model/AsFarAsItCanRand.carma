@@ -1,7 +1,14 @@
 record Message = [int ID, bool NOTIFY];
 
+// numero degli agenti
 const N = 10;
-const identifiers = createRandomList();
+
+/*Ordinamento degli ID:
+ * random = createRandomList();
+ * ordinati = createOrderedList();
+ * ordinati al contrario = createReverseOrderedList();
+ */
+const identifiers = createRandomList(); 
 
 fun Message newMessage(int id, bool notify){
 	Message mess := [ID := id, NOTIFY := notify];
