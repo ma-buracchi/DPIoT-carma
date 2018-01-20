@@ -1,5 +1,8 @@
 record Message = [int ID, int COUNTER];
 
+const N = 20;
+const identifiers = createRandomList();
+
 fun Message newMessage(int id, int counter){
 	Message mess = [ID = id, COUNTER = counter];
 	return mess;
@@ -14,7 +17,41 @@ fun bool isNotEmpty(list<Message> buf){
 	return size(buf)>0;
 }
 
-const N = 20;
+fun bool contain(list<int> l, int i){
+	return exist(l, @ == i);
+}
+
+fun list<int> createRandomList(){
+	list<int> uniqueID = newList(int);
+	for i from 0 to MAXINT{
+		int id = int(RND*100);
+		if (!contain(uniqueID, id)){
+			uniqueID = uniqueID + [:id:];
+		}
+		if (size(uniqueID) == N){
+			return uniqueID;
+		}
+	}
+	return uniqueID;
+}
+
+system Ring {	
+	collective {
+		for (i ; i < N ; 1) {
+			new Agent(i, identifiers[i]);
+		}
+	}	
+	environment {
+		store {
+			attrib int messages = 0;
+			}
+		update {
+			send{
+				messages = global.messages+1;
+			}
+		}
+	}
+}
 
 component Agent(int position, int id){
 	
@@ -26,7 +63,6 @@ component Agent(int position, int id){
 		attrib int right = (position+1)%N;
 		attrib int left = (position+N-1)%N;
 		attrib int minimum = MAXINT;
-		attrib bool known = false;
 		attrib list<Message> buf = newList(Message);
 	}
 	
@@ -49,7 +85,7 @@ component Agent(int position, int id){
 			
 			+
 		
-			[isNotEmpty(my.buf) && (my.buf[0].ID != my.id) && !my.known]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
+			[isNotEmpty(my.buf) && (my.buf[0].ID != my.id)]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
 				my.minimum = min(my.minimum, my.buf[0].ID);
 				my.counter = my.counter + 1;
 				my.buf = tail(my.buf);
@@ -57,7 +93,7 @@ component Agent(int position, int id){
 			
 			+
 			
-			[isNotEmpty(my.buf) && (my.buf[0].ID != my.id) && my.known]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
+			[isNotEmpty(my.buf) && (my.buf[0].ID != my.id)]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
 				my.minimum = min(my.minimum, my.buf[0].ID);
 				my.counter = my.counter + 1;
 				my.buf = tail(my.buf);
@@ -67,7 +103,6 @@ component Agent(int position, int id){
 			
 			[isNotEmpty(my.buf) && (my.buf[0].ID == my.id)]check*{
 				my.ringSize = my.buf[0].COUNTER;
-				my.known = true;
 				my.buf = tail(my.buf);
 			}.CHECK;			
 			
@@ -101,24 +136,6 @@ component Agent(int position, int id){
 		ASLEEP
 	}
 } 
-
-system Ring {	
-	collective {
-		for (i ; i < N ; 1) {
-			new Agent(i, 10*i);
-		}
-	}	
-	environment {
-		store {
-			attrib int messages = 0;
-			}
-		update {
-			send{
-				messages = global.messages+1;
-			}
-		}
-	}
-}
 
 measure leader = #{Agent[LEADER] | true};
 measure followers = #{Agent[FOLLOWER] | true};

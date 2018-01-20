@@ -22,17 +22,33 @@ fun bool contain(list<int> l, int i){
 }
 
 fun list<int> createRandomList(){
-	list<int> l = newList(int);
+	list<int> uniqueID = newList(int);
 	for i from 0 to MAXINT{
 		int id = int(RND*100);
-		if (!contain(l, id)){
-			l = l + [:id:];
+		if (!contain(uniqueID, id)){
+			uniqueID = uniqueID + [:id:];
 		}
-		if (size(l) == N){
-			return l;
+		if (size(uniqueID) == N){
+			return uniqueID;
 		}
 	}
-	return l;
+	return uniqueID;
+}
+
+fun list<int> createOrderedList(){
+	list<int> uniqueID = newList(int);
+	for i from 0 to N{
+		uniqueID = uniqueID + [:i:];
+	}
+	return uniqueID;
+}
+
+fun list<int> createReverseOrderedList(){
+	list<int> uniqueID = newList(int);
+	for i from 0 to N{
+		uniqueID = uniqueID + [:N-i:];
+	}
+	return uniqueID;
 }
 
 system Ring {	
