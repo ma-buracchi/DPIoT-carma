@@ -31,7 +31,7 @@ fun bool contain(list<int> l, int i){
 fun list<int> createRandomList(){
 	list<int> uniqueID = newList(int);
 	for i from 0 to MAXINT{
-		int id = int(RND*100);
+		int id = int(RND*MAXINT);
 		if (!contain(uniqueID, id)){
 			uniqueID = uniqueID + [:id:];
 		}
