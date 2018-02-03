@@ -83,18 +83,7 @@ component Agent(int position, int id){
 			
 			send [my.left == position](rId,rCounter){
 				my.buf = addMessage(newMessage(rId,rCounter),my.buf);
-			}.INITIALIZE;
-						
-		INITIALIZE =
-			send[my.right == position]<my.id,my.counter>{
-				my.minimum = my.id;
-			}.AWAKE
-			
-			+
-			
-			send [my.left == position](rId,rCounter){
-				my.buf = addMessage(newMessage(rId,rCounter),my.buf);
-			}.INITIALIZE;
+			}.ASLEEP;
 			
 		AWAKE = 
 			send[my.left == position](rId,rCounter){
@@ -111,30 +100,34 @@ component Agent(int position, int id){
 			
 			+
 			
-			[isNotEmpty(my.buf) && (my.buf[0].ID != my.id)]check*{
-				my.minimum = min(my.minimum, my.buf[0].ID);
-				my.counter = my.counter + 1;
-				my.buf = tail(my.buf);
-			}.CHECK
-			
-			+
-			
 			[isNotEmpty(my.buf) && (my.buf[0].ID == my.id)]check*{
 				my.ringSize = my.buf[0].COUNTER;
 				my.buf = tail(my.buf);
 			}.CHECK;			
 			
 		CHECK =
-			[(my.counter == my.ringSize) && (my.id == my.minimum)]youWin*{}.LEADER
+			[my.id == my.minimum]youWin*{}.LEADER
 			
 			+
 			
-			[(my.counter == my.ringSize) && (my.id != my.minimum)]youLose*{}.FOLLOWER;
+			[my.id != my.minimum]youLose*{}.FOLLOWER;
 			
-		LEADER =
-			winner*{}.LEADER;
+		LEADER = 
+			send[my.left == position](rId,rCounter){
+				my.buf = addMessage(newMessage(rId,rCounter),my.buf);
+			}.AWAKE
+			
+			+
+			
+			 winner*{}.LEADER;
 			
 		FOLLOWER = 
+			send[my.left == position](rId,rCounter){
+				my.buf = addMessage(newMessage(rId,rCounter),my.buf);
+			}.AWAKE
+			
+			+
+			
 			loser*{}.FOLLOWER;
 			
 	}
@@ -145,4 +138,6 @@ component Agent(int position, int id){
 
 measure leader = #{Agent[LEADER] | true};
 measure followers = #{Agent[FOLLOWER] | true};
+measure asleep = #{Agent[ASLEEP] | true};
+measure check = #{Agent[CHECK] | true};
 measure messages = global.messages;

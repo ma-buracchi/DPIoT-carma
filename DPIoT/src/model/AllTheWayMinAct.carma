@@ -100,27 +100,25 @@ component Agent(int position, int id){
 			
 			+
 			
-			[isNotEmpty(my.buf) && (my.buf[0].ID != my.id)]send[my.right == position]<my.buf[0].ID,my.buf[0].COUNTER+1>{
-				my.minimum = min(my.minimum, my.buf[0].ID);
-				my.counter = my.counter + 1;
-				my.buf = tail(my.buf);
-			}.CHECK
-			
-			+
-			
 			[isNotEmpty(my.buf) && (my.buf[0].ID == my.id)]check*{
 				my.ringSize = my.buf[0].COUNTER;
 				my.buf = tail(my.buf);
 			}.CHECK;			
 			
 		CHECK =
-			[(my.counter == my.ringSize) && (my.id == my.minimum)]youWin*{}.LEADER
+			[my.id == my.minimum]youWin*{}.LEADER
 			
 			+
 			
-			[(my.counter == my.ringSize) && (my.id != my.minimum)]youLose*{}.FOLLOWER;
+			[my.id != my.minimum]youLose*{}.FOLLOWER;
 			
 		LEADER =
+			send[my.left == position](rId,rCounter){
+				my.buf = addMessage(newMessage(rId,rCounter),my.buf);
+			}.LEADER
+			
+			+
+			
 			winner*{}.LEADER;
 			
 		FOLLOWER = 
