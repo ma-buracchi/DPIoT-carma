@@ -1,7 +1,7 @@
 record Message = [int ID, int COUNTER];
 
 // numero degli agenti
-const N = 30;
+const N = 10;
 
 /*Ordinamento degli ID:
  * random = createRandomList();
