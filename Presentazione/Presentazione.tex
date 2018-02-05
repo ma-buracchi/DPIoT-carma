@@ -1,0 +1,54 @@
+\documentclass[]{beamer}%[handout] slides non ripetute
+
+\usetheme{Warsaw}
+\usecolortheme{crane}
+
+\usepackage[utf8]{inputenc}			%lettere accentate
+\usepackage[italian]{babel}			%sillabazione italiana
+\usepackage{amsmath}				%simboli matematici
+\usepackage{amsfonts}				%font matematici
+\usepackage{amssymb}				%altri simboli matematici
+\usepackage{tikz}					%grafica
+\usepackage{esint}					%simboli matematici
+
+\newcommand{\nguasta}{$x \in \mathcal{S}$ }
+\newcommand{\guasta}{$z \in \mathcal{F}$ }
+\newcommand{\mes}[4]{\{#1,#2,id(#3),#4\} }
+
+\definecolor{Orange}{rgb}{1,0.93,0.76}
+
+\author{Marco Buracchi}
+
+\title{Computing in presence of fault}
+
+\institute{Università degli studi di Firenze}
+
+\date{\today}
+
+\subject{Distributed Programming for IoT}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamerfont{caption}{size=\scriptsize}
+
+\usetikzlibrary{shapes,arrows}
+
+\begin{document}
+	
+	{\logo{}
+	\maketitle}
+	
+	\include{chap/intro}
+	
+	{
+	\logo{}
+	\begin{frame}[plain]
+		\begin{tikzpicture}[remember picture,overlay]
+			\node[at=(current page.center)] {
+				\includegraphics[scale=0.45]{img/All}
+			};
+		\end{tikzpicture}
+	\end{frame}
+	}
+	
+\end{document}
