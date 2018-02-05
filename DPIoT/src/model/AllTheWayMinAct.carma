@@ -1,7 +1,7 @@
 record Message = [int ID, int COUNTER];
 
 // numero degli agenti
-const N = 10;
+const N = 30;
 
 /*Ordinamento degli ID:
  * random = createRandomList();
@@ -143,5 +143,6 @@ component Agent(int position, int id){
 } 
 
 measure leader = #{Agent[LEADER] | true};
+measure initiator = #{Agent[AWAKE] | true};
 measure followers = #{Agent[FOLLOWER] | true};
 measure messages = global.messages;
